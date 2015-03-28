@@ -43,9 +43,9 @@ module.exports = function (options, finallyCallback) {
     });
 
     tasks.push(function populateDb(cb) {
-      if (config.env === "development") {
-        // Would populate development data to DB
-      }
+      // if (config.env === "development") {
+      //   // Would populate development data to DB
+      // }
       cb();
     });
 
@@ -66,7 +66,7 @@ module.exports = function (options, finallyCallback) {
     tasks.push(function configureMiddleware(cb) {
       debug("configureMiddleware");
       var bodyParser = require("body-parser");
-      var cookieParser = require('cookie-parser')
+      var cookieParser = require("cookie-parser");
       var csrf = require("csurf");
 
       app.use(cookieParser());
