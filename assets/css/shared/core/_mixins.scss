@@ -1,0 +1,92 @@
+$vendors: webkit moz ms khtml o;
+
+/* !vendors(String $property, String $value) */
+@mixin vendors($property, $value) {
+  @each $vendor in $vendors {
+    -#{$vendor}-#{$property}: $value;
+  }
+  #{$property}: $value;
+}
+
+/* !vendorSpecific(String $property, String $value) - fallback */
+@mixin vendorSpecific ($property, $value) {
+  @include vendors($property, $value);
+}
+
+/* !noselect() */
+@mixin noselect() {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@mixin keyframes ($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+  @-khtml-keyframes #{$name} {
+    @content;
+  }
+  @-o-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+/* Helper for vendor specific animations */
+@mixin animation ($animation, $duration, $timing: ease, $delay: initial, $iterations: infinite, $direction: initial, $fill: forwards) {
+  @include vendorSpecific("animation-name", $animation);
+  @include vendorSpecific("animation-duration", $duration);
+  @include vendorSpecific("animation-timing-function", $timing);
+  @include vendorSpecific("animation-delay", $delay);
+  @include vendorSpecific("animation-iteration-count", $iterations);
+  @include vendorSpecific("animation-direction", $direction);
+  @include vendorSpecific("animation-fill-mode", $fill);
+}
+@mixin animationStr ($str) {
+  @include vendorSpecific("animation", $str);
+}
+
+/* !clearShadow() */
+@mixin clearShadow {
+  @include vendors(box-shadow, none);
+}
+
+/* !marginCentered() */
+@mixin marginCentered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* !containerReset() */
+@mixin containerReset() {
+  @include vendorSpecific(box-sizing, border-box)
+}
+
+/* !clearFix() */
+@mixin clearfix() {
+  clear: both;
+  float: none;
+
+  &:before,
+  &:after {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+    clear: both;
+    float: none;
+  }
+}

@@ -1,0 +1,11 @@
+/* !vendors(String $property, String $value) */
+/* !vendorSpecific(String $property, String $value) - fallback */
+/* !noselect() */
+/* Helper for vendor specific animations */
+/* !clearShadow() */
+/* !marginCentered() */
+/* !containerReset() */
+/* !clearFix() */
+.o-footer {
+  margin-top: 15px;
+  color: #000000; }
