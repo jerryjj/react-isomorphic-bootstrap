@@ -1,14 +1,21 @@
 /*eslint-env es6, browser */
-/*global window, __DEBUG__ */
+/*global window, __DEBUG__, NODE_ENV */
 "use strict";
 
 let debug = require("../shared/Debugger")("site");
 if (__DEBUG__) {
   debug.enable("*,-engine.io-client:polling*,-engine.io-client:*");
 }
-if (process.env.NODE_ENV !== "production") {
-  require("react-a11y")();
-}
+
+// This is disabled until the package supports the latest React.
+// if (NODE_ENV !== "production") {
+//   // If you cannot find where the accessibility warning is coming from,
+//   // set this to true and follow the stack trace in browser console.
+//   let debugAccessibility = false;
+//   require("react-a11y")({
+//     throw: debugAccessibility
+//   });
+// }
 
 // Example how to load external JS assets
 //require("../assets/js/zepto.js");

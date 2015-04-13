@@ -90,7 +90,7 @@ let walkDirSync = exports.walkDirSync = (dir, opts={}) => {
 
   let results = [];
   fs.readdirSync(dir).forEach((file) => {
-    let file = path.join(dir, file);
+    file = path.join(dir, file);
     let stat = fs.statSync(file);
     if (stat.isDirectory()) {
       results = results.concat(walkDirSync(file, opts));

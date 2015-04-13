@@ -2,6 +2,7 @@
 
 var webpack = require("webpack")
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var util = require("util");
 
 module.exports = function (grunt) {
   var uglify_files = {};
@@ -16,6 +17,51 @@ module.exports = function (grunt) {
   if (process.env.NODE_ENV === "production") {
     debug = false;
   }
+
+  var webpackDevConfig = {
+      resolve: {
+        root: "./" + grunt.option("projectName"),
+        extensions: ["", ".js", ".jsx"],
+        modulesDirectories: ["node_modules"]
+      },
+      entry: {
+        client: "./" + grunt.option("projectName") + "/client.js",
+        vendor: ["react", "react-router", "superagent", "alt", "Iso"]
+      },
+      output: {
+        path: "./build/" + grunt.option("projectName") + "/js",
+        filename: "client.js"
+      },
+      module: {
+        loaders: [
+          {
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract("css-loader")
+          },
+          {
+            test: /\.(otf|eot|svg|ttf|woff)/,
+            loader: "url-loader?limit=8192"
+          },
+          { test: /\.(js|jsx)$/, exclude: /node_modules/, loaders: ["babel-loader"] },
+          { test: /\.(js)$/, exclude: /node_modules|assets/, loaders: ["eslint-loader"] }
+        ]
+      },
+      stats: {
+        colors: true
+      },
+      devtool: "source-map",
+      watch: true,
+      keepalive: true,
+      plugins: [
+        new webpack.DefinePlugin({
+          "__DEBUG__": debug,
+          "NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development")
+        }),
+        new webpack.PrefetchPlugin("react"),
+        new webpack.PrefetchPlugin("react/lib/ReactComponentBrowserEnvironment"),
+        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js")
+      ]
+    }
 
   grunt.initConfig({
     clean: ["./build/" + grunt.option("projectName")],
@@ -48,50 +94,11 @@ module.exports = function (grunt) {
       options: {
         failOnError: false
       },
-      dev: {
-        resolve: {
-          root: "./" + grunt.option("projectName"),
-          extensions: ["", ".js", ".jsx"],
-          modulesDirectories: ["node_modules"]
-        },
-        entry: {
-          client: "./" + grunt.option("projectName") + "/client.js",
-          vendor: ["react", "react-router", "superagent", "alt", "Iso"]
-        },
-        output: {
-          path: "./build/" + grunt.option("projectName") + "/js",
-          filename: "client.js"
-        },
-        module: {
-          loaders: [
-            {
-              test: /\.css$/,
-              loader: ExtractTextPlugin.extract("css-loader")
-            },
-            {
-              test: /\.(otf|eot|svg|ttf|woff)/,
-              loader: "url-loader?limit=8192"
-            },
-            { test: /\.(js|jsx)$/, exclude: /node_modules/, loaders: ["babel-loader"] },
-            { test: /\.(js)$/, exclude: /node_modules|assets/, loaders: ["eslint-loader"] }
-          ]
-        },
-        stats: {
-          colors: true
-        },
-        devtool: "source-map",
-        watch: true,
-        keepalive: true,
-        plugins: [
-          new webpack.DefinePlugin({
-            "__DEBUG__": debug,
-            "NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development")
-          }),
-          new webpack.PrefetchPlugin("react"),
-          new webpack.PrefetchPlugin("react/lib/ReactComponentBrowserEnvironment"),
-          new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js")
-        ]
-      }
+      dev: webpackDevConfig,
+      devPub: util._extend(webpackDevConfig, {
+        watch: false,
+        keepalive: false
+      })
     },
     uglify: {
       publish: {
@@ -201,9 +208,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask("default", ["clean", "concurrent:dev"]);
   grunt.registerTask("lint", ["eslint"]);
-  grunt.registerTask("embedded", ["clean", "concurrent:embedded"]);
-  grunt.registerTask("mobile", ["clean", "concurrent:mobile"]);
   grunt.registerTask("styles", ["copy:vstyles", "sass:dev", "watch:cssdev"]);
   grunt.registerTask("test", ["karma"]);
-  grunt.registerTask("publish", ["sass:dist", "uglify:publish"]);
+  grunt.registerTask("publish", ["webpack:devPub", "sass:dist", "uglify:publish"]);
 };
